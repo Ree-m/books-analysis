@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import withLlamaIndex from "llamaindex/next";
+
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -18,4 +20,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withLlamaIndex(nextConfig);

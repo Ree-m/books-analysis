@@ -50,15 +50,14 @@ export default function BookDetails({ book }: { book: Book }) {
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
                 description: error,
-                className: "bg-red-500 text-white"
+                className: "bg-red-500 text-white",
+                duration: 1000000
             });
-            setHasError(false)
         }
     }, [hasError, error, toast])
 
     async function fetchSummary() {
         setIsLoading(true)
-        setHasError(false);
         try {
             const response = await fetch(`/api/text-analysis?id=${book.id}`)
             const data = await response.json()
@@ -71,7 +70,6 @@ export default function BookDetails({ book }: { book: Book }) {
                 setError(data.error)
             }
         } catch (error: unknown) {
-            console.log("in catch", hasError, error)
             setHasError(true)
             const message = error instanceof Error ? error.message : "An unknown error occurred.";
             setError(message);
