@@ -20,7 +20,7 @@
 - Summarizes the content of the book.
 - Download and read the book.
 
-## Optimation
+## Optimization
 - Make the summarising faster, maybe test with other llms
 - Add pagination to the viewed books page
 
