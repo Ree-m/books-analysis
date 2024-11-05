@@ -2,9 +2,9 @@
 import BookCard from "@/components/BookCard"
 import { useEffect, useState } from "react";
 import { z } from "zod"
-import { bookSchema } from "../[id]/page";
 import { Books } from "@/components/SavedBooks";
 import { Book } from "@/components/BookDetails";
+import { bookSchema } from "@/components/SavedBooks";
 
 type Entries<T> = {
     [K in keyof T]: [K, T[K]];
