@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import SavedBooks from '@/components/SavedBooks';
 import BookDetails from '@/components/BookDetails';
-import { bookSchema } from '@/components/SavedBooks';
+import { bookSchema } from '@/lib/schemas/book';
 
 async function fetchBookData(id: string) {
     let metaText

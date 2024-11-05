@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod"
 import { Books } from "@/components/SavedBooks";
 import { Book } from "@/components/BookDetails";
-import { bookSchema } from "@/components/SavedBooks";
+import { bookSchema } from "@/lib/schemas/book";
 
 type Entries<T> = {
     [K in keyof T]: [K, T[K]];

@@ -5,6 +5,7 @@ import Link from "next/link"
 import BookCard from "./BookCard"
 import { FaArrowRightLong } from "react-icons/fa6";
 import { z } from "zod";
+import { bookSchema } from "@/lib/schemas/book"
 
 export interface Books {
     [key: string]: Book
@@ -12,19 +13,6 @@ export interface Books {
 type Entries<T> = {
     [K in keyof T]: [K, T[K]];
 }[keyof T][];
-
-export const bookSchema = z.object({
-    id: z.string(),
-    title: z.string(),
-    author: z.string(),
-    publishedDate: z.string(),
-    coverArt: z.string(),
-    downloadLink: z.string(),
-    readOnlineLink: z.string(),
-    language: z.string(),
-    updatedDate: z.string()
-})
-
 
 
 export default function SavedBooks({ book }: { book?: Book }) {
