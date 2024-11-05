@@ -7,9 +7,10 @@ import {
     Settings,
     VectorStoreIndex
 } from "llamaindex";
-import { parsedSettings } from "@/setting";
+
+
 Settings.llm = new Groq({
-    apiKey: parsedSettings.groqApiKey,
+    apiKey: process.env.GROQ_API_KEY,
 });
 
 Settings.embedModel = new HuggingFaceEmbedding({
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
     const bookId = request.nextUrl.searchParams.get("id")
 
     if (!bookId) {
-        return Response.json("Book Id is required")
+        return Response.json({ error: "Book Id is required" }, { status: 400 })
     }
     const data = await fetch(`https://www.gutenberg.org/ebooks/${bookId}`)
     const metaText = await data.text()
