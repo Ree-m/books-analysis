@@ -7,9 +7,9 @@ import {
     Settings,
     VectorStoreIndex
 } from "llamaindex";
-
+import { parsedSettings } from "@/setting";
 Settings.llm = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
+    apiKey: parsedSettings.groqApiKey,
 });
 
 Settings.embedModel = new HuggingFaceEmbedding({

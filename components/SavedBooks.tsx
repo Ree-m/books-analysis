@@ -4,36 +4,59 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import BookCard from "./BookCard"
 import { FaArrowRightLong } from "react-icons/fa6";
+import { bookSchema } from "@/app/(books)/books/[id]/page"
+import { z } from "zod";
+
+export interface Books {
+    [key: string]: Book
+}
+type Entries<T> = {
+    [K in keyof T]: [K, T[K]];
+}[keyof T][];
 
 
 export default function SavedBooks({ book }: { book?: Book }) {
-    const [savedBooks, setSavedBooks] = useState<Book[]>([]);
+    const [savedBooks, setSavedBooks] = useState<Books>({});
     const [isClient, setIsClient] = useState(false)
+    const [error, setError] = useState<string | undefined>(undefined)
+
+    const booksSchema = z.record(bookSchema)
 
     useEffect(() => {
         setIsClient(true)
-        const booksFromLocalStorage: Book[] = JSON.parse(localStorage.getItem('books') || '[]');
-        setSavedBooks(booksFromLocalStorage);
+        const booksFromLocalStorage = localStorage.getItem('books')
+        if (booksFromLocalStorage) {
+            const parsedSavedBooks = booksSchema.safeParse(JSON.parse(booksFromLocalStorage))
+            if (parsedSavedBooks.success) {
+                setSavedBooks(parsedSavedBooks.data);
+            } else {
+                setError(`Books validation error:${parsedSavedBooks.error.message}`)
+            }
+        }
     }, [])
 
     useEffect(() => {
         if (book) {
             setSavedBooks((prevBooks) => {
-                // ignore the current book
-                if (!prevBooks.find((savedBook) => savedBook.id === book.id)) {
-                    const updatedBooks = [...prevBooks, book];
-                    localStorage.setItem("books", JSON.stringify(updatedBooks));
-                    return updatedBooks;
-                }
-                return prevBooks;
+                const updatedBooks = { ...prevBooks, [book.id as string]: book };
+                localStorage.setItem("books", JSON.stringify(updatedBooks));
+                return updatedBooks;
             });
         }
     }, [book]);
 
     if (!isClient) return null;
 
+    const filteredBooks = (Object.entries(savedBooks) as Entries<typeof savedBooks>)
+        .filter(([, value]) => value.id !== book?.id)
+        .map(([, value]) => value);
 
-    return savedBooks && savedBooks.filter((savedBook) => savedBook.id !== book?.id).length >= 1 ? (
+    if (error) {
+        return <div className='text-red-500 flex justify-center items-center h-screen'>{error}</div>;
+    }
+
+
+    return filteredBooks.length > 0 ? (
         <div className="mb-10">
             <div className="flex justify-between pt-24 pb-16">
                 <div className="flex-1 flex justify-center">
@@ -48,7 +71,7 @@ export default function SavedBooks({ book }: { book?: Book }) {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {
-                    savedBooks.filter((savedBook) => savedBook.id !== book?.id).slice(0, 8).map((book: Book) => (
+                    filteredBooks.slice(0, 8).map((book: Book) => (
                         <div key={book.id} className="bg-secondary dark:bg-secondary-dark rounded-lg p-6 bg-opacity-50">
                             <BookCard book={book} />
                         </div>

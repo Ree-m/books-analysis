@@ -1,20 +1,44 @@
 "use client"
 import BookCard from "@/components/BookCard"
-import { Book } from "@/components/BookDetails";
 import { useEffect, useState } from "react";
+import { z } from "zod"
+import { bookSchema } from "../[id]/page";
+import { Books } from "@/components/SavedBooks";
+import { Book } from "@/components/BookDetails";
+
+type Entries<T> = {
+    [K in keyof T]: [K, T[K]];
+}[keyof T][];
+
 export default function Page() {
     const [isClient, setIsClient] = useState<boolean>(false)
+    const [books, setBooks] = useState<Books>({})
+    const [error, setError] = useState<string | undefined>(undefined)
+    const booksSchema = z.record(bookSchema)
 
     useEffect(() => {
         setIsClient(true)
+        const savedBooks = localStorage.getItem('books')
+        if (savedBooks) {
+            const parsedSavedBooks = booksSchema.safeParse(JSON.parse(savedBooks))
+            if (parsedSavedBooks.success) {
+                setBooks(parsedSavedBooks.data)
+            } else {
+                setError(`Books validation error:${parsedSavedBooks.error.message}`)
+            }
+        }
     }, []);
+
+    const displayedBooks = (Object.entries(books) as Entries<typeof books>)
+        .map(([, value]) => value);
 
     if (!isClient) {
         return null;
     }
 
-    const savedBooks : Book[] = JSON.parse(localStorage.getItem('books') || '[]');
-
+    if (error) {
+        return <div className='text-red-500 flex justify-center items-center h-screen'>{error}</div>;
+    }
 
     return (
         <div className="px-6 md:px-24">
@@ -26,7 +50,7 @@ export default function Page() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {
-                        savedBooks.map((book: Book, index: number) => (
+                        displayedBooks.map((book: Book, index: number) => (
                             <div key={index} className="bg-secondary dark:bg-secondary-dark rounded-lg p-6 bg-opacity-50">
                                 <BookCard book={book} />
                             </div>

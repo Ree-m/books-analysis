@@ -15,17 +15,18 @@ import {
     TableHead,
     TableRow,
 } from "@/components/ui/table"
+import { z } from "zod"
 
 export interface Book {
-    id: string,
-    title: string,
-    author: string,
-    coverArt: string,
-    downloadLink: string,
-    readOnlineLink: string,
-    publishedDate: string,
-    language: string,
-    updatedDate: string
+    id: string | undefined,
+    title: string | undefined,
+    author: string | undefined,
+    coverArt: string | undefined,
+    downloadLink: string | undefined,
+    readOnlineLink: string | undefined,
+    publishedDate: string | undefined,
+    language: string | undefined,
+    updatedDate: string | undefined
 }
 
 export default function BookDetails({ book }: { book: Book }) {
@@ -35,12 +36,18 @@ export default function BookDetails({ book }: { book: Book }) {
     const [error, setError] = useState<string | undefined>(undefined)
     const [hasError, setHasError] = useState<boolean>(false)
     const { toast } = useToast()
+    const summarySchema = z.string()
 
     useEffect(() => {
         setIsClient(true)
-        const storedSummary = localStorage.getItem(`summary-${book.id}`);
-        if (storedSummary) {
-            setSummary(storedSummary);
+        const summary = localStorage.getItem(`summary-${book.id}`);
+        if (summary) {
+            const parsedSummary = summarySchema.safeParse(summary)
+            if (parsedSummary.success) {
+                setSummary(parsedSummary.data);
+            } else {
+                console.log(`Summary validation error:${parsedSummary.error.message}`)
+            }
         }
     }, []);
 
@@ -85,10 +92,10 @@ export default function BookDetails({ book }: { book: Book }) {
     return (
         <div className="flex gap-6 flex-col md:flex-row">
             <div className="flex-shrink-0">
-                <Image src={book.coverArt} className="rounded-lg h-[300px] w-auto" width={200} height={300} alt={`Cover art of ${book.title}`} />
+                <Image src={book.coverArt ? book.coverArt : "https://placehold.jp/30/808080/ffffff/200x300.png?text=placeholder"} className="rounded-lg h-[300px] w-auto" width={200} height={300} alt={`Cover art of ${book.title}`} />
                 <div className="flex gap-2 pt-2">
-                    <Link href={`${book.downloadLink}`} className="text-primary dark:text-primary-dark underline hover:opacity-90">Download</Link>
-                    <a target="_blank" href={`${book.readOnlineLink}`} rel="noopener noreferrer" className="text-primary dark:text-primary-dark underline hover:opacity-90">Read Online</a>
+                    <Link href={`https://www.gutenberg.org${book.downloadLink}`} className="text-primary dark:text-primary-dark underline hover:opacity-90">Download</Link>
+                    <a target="_blank" href={`https://www.gutenberg.org${book.readOnlineLink}`} rel="noopener noreferrer" className="text-primary dark:text-primary-dark underline hover:opacity-90">Read Online</a>
                 </div>
             </div>
 
@@ -126,39 +133,39 @@ export default function BookDetails({ book }: { book: Book }) {
                                 <TableHead className="border-r border-b border-accent dark:border-accent-dark border-opacity-60">
                                     Author
                                 </TableHead>
-                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.author}</TableCell>
+                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.author ? book.author : "Unknown"}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableHead className="border-r border-b border-accent dark:border-accent-dark border-opacity-60">
                                     Title
                                 </TableHead>
-                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.title.replace(/ by .*$/, '')}</TableCell>
+                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.title ? book.title?.replace(/ by .*$/, '') : "Unknown"}</TableCell>
 
                             </TableRow>
                             <TableRow>
                                 <TableHead className="border-r border-b border-accent dark:border-accent-dark border-opacity-60">
                                     Language
                                 </TableHead>
-                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.language}</TableCell>
+                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.language ? book.language : "Unknown"}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableHead className="border-r border-b border-accent dark:border-accent-dark border-opacity-60">
                                     Book Number
                                 </TableHead>
-                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.id}</TableCell>
+                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.id ? book.id : "Unknown"}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableHead className="border-r border-b border-accent dark:border-accent-dark border-opacity-60">
                                     Release Date
                                 </TableHead>
-                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.publishedDate}</TableCell>
+                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.publishedDate ? book.publishedDate : "Unknown"}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableHead className="border-r border-b border-accent dark:border-accent-dark border-opacity-60">
                                     Most Recently Updated
                                 </TableHead>
-                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.updatedDate}</TableCell>
+                                <TableCell className="border-b border-accent dark:border-accent-dark border-opacity-60" colSpan={3}>{book.updatedDate ? book.updatedDate : "Unknown"}</TableCell>
                             </TableRow>
                         </TableBody>
                         <TableFooter>
